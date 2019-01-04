@@ -71,3 +71,47 @@ plt.title('ROC curve of XGB')
 plt.show()
 auc(fpr, tpr)
 
+
+
+#Adaboost
+
+#최적값 탐색
+from sklearn.ensemble import AdaBoostClassifier
+estimator = list(range(100,500,20))
+learning = np.arange(0.5,1.5,0.1)
+best_auc = 0
+best_estimator =0
+best_learning_rate =0
+for i in estimator:
+    for j in learning:
+        
+        abc = AdaBoostClassifier(n_estimators = i, learning_rate = j)
+        model = abc.fit(X_train, y_train)
+        y_pred = model.predict(X_train)
+        auc_tmp = np.sum(y_train == y_pred)/len(y_train)
+        if auc_tmp > best_auc:
+            best_auc = auc_tmp
+            best_estimator = i
+            best_learning_rate = j
+        
+print(best_auc, best_estimator, best_learning_rate)
+
+
+#최적값 넣기, metric
+from sklearn.ensemble import AdaBoostClassifier
+abc = AdaBoostClassifier(n_estimators = best_estimator, learning_rate =best_learning_rate)
+model = abc.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print(np.sum(y_pred == y_test)/len(y_test))
+print(f1_score(y_test,y_pred))
+print(confusion_matrix(y_test,y_pred))
+
+fpr, tpr, _ = roc_curve(y_test, y_pred)
+
+plt.plot(fpr, tpr, 'o-', label="Adaboost")
+plt.plot([0, 1], [0, 1], 'k--', label="random guess")
+plt.xlabel('False Positive Rate (Fall-Out)')
+plt.ylabel('True Positive Rate (Recall)')
+plt.title('ROC curve of XGB')
+plt.show()
+auc(fpr, tpr)
